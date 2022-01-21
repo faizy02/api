@@ -1,5 +1,6 @@
 To start the project: 
->docker-compose up
+> docker-compose build --no-cache
+> docker-compose up
 
 The command should start the server at localhost:5000
 
@@ -18,3 +19,4 @@ PATCH :
 DELETE : 
     localhost:5000/file/root/rootfile > It will delete the file if existed at the path
 
+UNIT TESTS can be run in sequential order to test the functionality

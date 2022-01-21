@@ -1,9 +1,7 @@
-import json
-#from msilib.schema import Directory
-import os
-from flask import jsonify, request
 from flask import Flask
-from flask import send_from_directory    
+import json
+import os
+from flask import Response, jsonify, request  
 
 app = Flask(__name__)
 
@@ -27,12 +25,12 @@ def get_data(fspath):
     filterByName = request.args.get('filterByName')
 
     if (dir_check(newpath)):  
-        return read_dir(newpath)
+        return Response(read_dir(newpath), status=200 , mimetype='application/json')
     elif (file_exists(newpath)):
-        return read_file(newpath)
+        return Response(read_file(newpath), status=200 , mimetype='application/json')
         #file_exists(newpath)
     else:
-        return {"Error Message" : "Please enter valid path"}
+        return Response('{"Error Message" : "Please enter valid path."}', status=404, mimetype='application/json')
 
 #--------------------------------------
 # POST Method : Create a file 
@@ -47,12 +45,12 @@ def create_file(fspath):
     print("\n REQUESTING : " + newpath + "\n")
     
     if(dir_check(newpath)):
-       return {"Error Message" : "This is a directory. Please send new file name in URL and data in JSON"}
+        return Response('{"Error Message" : "This is a directory. Please send new file name in URL and data in JSON"}', status=403, mimetype='application/json')
     elif(file_exists(newpath)):
-        return {"Error Message" : "File Already Exists"}
+        return Response('{"Error Message" : "File Already Exists"}', status=403, mimetype='application/json')
     else:
         create_file(newpath,filedata)
-        return {"Message":"File created"}
+        return Response('{"Message":"File created"}', status=200 , mimetype='application/json')
 
 #--------------------------------------
 # PATCH Method : Update a file 
@@ -67,12 +65,13 @@ def update_file(fspath):
     print("\n REQUESTING : " + newpath + "\n")
     
     if(dir_check(newpath)):
-       return {"Error Message" : "This is a directory. Please send existing file name in URL and data in JSON"}
+       return Response('{"Error Message" : "This is a directory. Please send existing file name in URL and data in JSON"}', status=403 , mimetype='application/json')
     elif (file_exists(newpath)):  
         update_file(newpath, filedata)
-        return {"Message" : "File successfully updated"}
+        return Response('{"Message" : "File successfully updated"}', status=200 , mimetype='application/json')
     else:
-        return {"Error Message" : "File does not Exist"}
+        return Response('{"Error Message" : "File does not Exist"}', status=404 , mimetype='application/json')
+        
 
 
 #--------------------------------------
@@ -85,13 +84,16 @@ def delete_file(fspath):
     print("from delete method :" + newpath)
     
     if(dir_check(newpath)):
-        return {"Error Message" : "This is a directory. Please select file"}
+        return Response('{"Error Message" : "This is a directory. Please select file"}', status=403 , mimetype='application/json')
+        
     else:
         if (file_exists(newpath)):  
             os.remove(newpath + ".txt")
-            return {"Message" : "File successfully removed"}
+            return Response('{"Message" : "File successfully removed"}', status=200 , mimetype='application/json')
+            
         else:
-            return {"Error Message" : "File does not Exist"}
+            return Response('{"Error Message" : "File does not Exist"}', status=200 , mimetype='application/json')
+            
    
 
 #--------------------------------------
@@ -114,7 +116,7 @@ def read_file(filepath):
         count += 1
         filecontent = filecontent + str(line) + "\n"
     
-    return filecontent   
+    return filecontent#{ "File contents :" : filecontent }   
 
 #--------------------------------------
 # Get Directory Content
